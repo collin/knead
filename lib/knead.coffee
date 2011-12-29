@@ -51,17 +51,18 @@ exports.monitor = (element, options={}) ->
       deltaY: (nowY - startY)
     
   $("html").mouseup (event) ->
-    return unless dragging and started
+    if dragging and started
+      [nowX, nowY] = [event.clientX or 0, event.clientY or 0]
+      distance = calc_distance(startX, startY, nowX, nowY)
+    
+      target.trigger $.Event event, 
+        type: "knead:dragend"
+        startX: startX
+        startY: startY
+        deltaX: (nowX - startX)
+        deltaY: (nowY - startY)
+
     dragging = false
     started = false
-
-    [nowX, nowY] = [event.clientX or 0, event.clientY or 0]
-    distance = calc_distance(startX, startY, nowX, nowY)
     
-    target.trigger $.Event event, 
-      type: "knead:dragend"
-      startX: startX
-      startY: startY
-      deltaX: (nowX - startX)
-      deltaY: (nowY - startY)
   

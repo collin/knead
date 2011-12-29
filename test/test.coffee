@@ -170,6 +170,17 @@ module.exports =
     test.equal 0, dragends
     test.done()  
 
+  testCleansUpEvenIfDragDidNotStart: (test) ->
+    knead.monitor(draggable)
+    dragstarts = 0
+    draggable.bind "knead:dragstart", -> dragstarts += 1
+    trigger draggable, "mousedown"
+    trigger draggable, "mouseup"
+    trigger draggable, "mousemove"
+  
+    test.equal 0, dragstarts
+    test.done()  
+    
   testDelegate: (test) ->
     knead.initialize()
     draggable = $ ".draggable:last"

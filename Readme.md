@@ -19,6 +19,7 @@ You have to be able to require("jquery") to use knead. If you can't, I'm sorry.
     
     
     # All the knead:* events have the following properties:
+    
     # startX, startY, deltaX, deltaY
     # They are in pixel values and are relative to the document 0,0 point.
     
@@ -43,6 +44,9 @@ You have to be able to require("jquery") to use knead. If you can't, I'm sorry.
 
 
 ### CHANGELOG
+
+##### 0.2.2
+- Fixed bug where knead:dragstart would fire although the drag should have been canceled altogether.
 
 ##### 0.2.1
 - Fixed bug where knead:dragend would fire although a proper drag had not started.
