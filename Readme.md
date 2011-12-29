@@ -43,13 +43,13 @@ You have to be able to require("jquery") to use knead. If you can't, I'm sorry.
 
 ### CHANGELOG
 
-* 0.2.0
+##### 0.2.0
 
-Added ability to use .live to delegate knead events.
-Added knead.initialize. This is needed to start things up to allow for delegation on a document-wide scale.
+- Added ability to use .live to delegate knead events.
+- Added knead.initialize. This is needed to start things up to allow for delegation on a document-wide scale.
 
-* 0.1.x
+##### 0.1.x
 
-0.1.x series released Before Changelog instituted.
+- Released before institution of changelog.
 
     
