@@ -26,23 +26,37 @@ exports.monitor = (element, options={}) ->
     return unless dragging
 
     [nowX, nowY] = [event.clientX or 0, event.clientY or 0]
-    
     distance = calc_distance(startX, startY, nowX, nowY)
     
     if started is false and distance >= options.distance
-      element.trigger("knead:dragstart")
+      element.trigger $.Event event, 
+        type:"knead:dragstart"
+        startX: startX
+        startY: startY
+        deltaX: (nowX - startX)
+        deltaY: (nowY - startY)
+        
       started = true
     
     element.trigger $.Event event, 
-      type: "knead:drag", 
-      deltaX: (nowX - startX), 
+      type: "knead:drag"
+      startX: startX
+      startY: startY
+      deltaX: (nowX - startX)
       deltaY: (nowY - startY)
     
-      
-  
   $("html").mouseup (event) ->
     return unless dragging
     dragging = false
     started = false
-    element.trigger("knead:dragend")
+
+    [nowX, nowY] = [event.clientX or 0, event.clientY or 0]
+    distance = calc_distance(startX, startY, nowX, nowY)
+
+    element.trigger $.Event event,
+      type: "knead:dragend"
+      startX: startX
+      startY: startY
+      deltaX: (nowX - startX)
+      deltaY: (nowY - startY)
   

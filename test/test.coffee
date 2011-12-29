@@ -99,6 +99,28 @@ tests.testDelta = (test) ->
   draggable.trigger "mousedown"
   draggable.trigger gen_event "mousemove", clientX: 50, clientY: 100
 
+tests.testStartDelta = (test) ->
+  knead.monitor(draggable)
+  draggable.bind "knead:dragstart", (event) ->
+    test.ok event.deltaX is 50
+    test.ok event.deltaY is 100
+    test.done()
+    
+  draggable.trigger "mousedown"
+  draggable.trigger gen_event "mousemove", clientX: 50, clientY: 100
+
+tests.testEndDelta = (test) ->
+  knead.monitor(draggable)
+  draggable.bind "knead:dragend", (event) ->
+    
+    test.ok event.deltaX is 50
+    test.ok event.deltaY is 100
+    test.done()
+    
+  draggable.trigger "mousedown"
+  draggable.trigger gen_event "mouseup", clientX: 50, clientY: 100
+
+
 tests.testNegativeDelta = (test) ->
   knead.monitor(draggable)
   draggable.bind "knead:drag", (event) ->
@@ -108,6 +130,28 @@ tests.testNegativeDelta = (test) ->
     
   draggable.trigger gen_event "mousedown", clientX: 50, clientY: 100
   draggable.trigger gen_event "mousemove", clientX: 0, clientY: 0
+  
+
+tests.testStartXY = (test) ->
+  knead.monitor(draggable)
+  draggable.bind "knead:dragstart", (event) ->
+    test.equal event.startX, 100
+    test.equal event.startY, 300
     
+  draggable.bind "knead:drag", (event) ->
+    test.equal event.startX, 100
+    test.equal event.startY, 300
+    
+  draggable.bind "knead:dragend", (event) ->
+    test.equal event.startX, 100
+    test.equal event.startY, 300
+
+  draggable.trigger gen_event "mousedown", clientX: 100, clientY: 300
+  draggable.trigger "mousemove"
+  draggable.trigger "mouseup"
+  
+  test.done()
+
+  
 # tests.testDragStartEvent = (test) ->
   
