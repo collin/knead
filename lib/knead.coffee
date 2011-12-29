@@ -30,7 +30,12 @@ exports.monitor = (element, options={}) ->
     if started is false and distance >= options.distance
       element.trigger("knead:dragstart")
       started = true
-    element.trigger("knead:drag")
+    
+    element.trigger $.Event event, 
+      type: "knead:drag", 
+      deltaX: (nowX - startX), 
+      deltaY: (nowY - startY)
+    
       
   
   $("html").mouseup (event) ->

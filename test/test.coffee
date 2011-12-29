@@ -88,5 +88,26 @@ tests.testDragStartDistanceLongEnough = (test) ->
   draggable.trigger gen_event("mousedown", clientX: 0, clientY: 0)
   draggable.trigger gen_event("mousemove", clientX: 50, clientY: 50)
   
+tests.testDelta = (test) ->
+  knead.monitor(draggable)
+  draggable.bind "knead:drag", (event) ->
+    
+    test.ok event.deltaX is 50
+    test.ok event.deltaY is 100
+    test.done()
+    
+  draggable.trigger "mousedown"
+  draggable.trigger gen_event "mousemove", clientX: 50, clientY: 100
+
+tests.testNegativeDelta = (test) ->
+  knead.monitor(draggable)
+  draggable.bind "knead:drag", (event) ->
+    test.equal -50, event.deltaX
+    test.equal -100, event.deltaY
+    test.done()
+    
+  draggable.trigger gen_event "mousedown", clientX: 50, clientY: 100
+  draggable.trigger gen_event "mousemove", clientX: 0, clientY: 0
+    
 # tests.testDragStartEvent = (test) ->
   
