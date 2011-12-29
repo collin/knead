@@ -1,4 +1,6 @@
 # YOW, its Knead. A Drag and Drop library.
+##### PUBLIC DOMAIN LICENSE ( IT'S IN THE PUBLIC DOMAIN )
+
 
 It doesn't do a lot.
 
@@ -39,17 +41,17 @@ You have to be able to require("jquery") to use knead. If you can't, I'm sorry.
     
     $("#container .draggable").live "knead:dragstart", (event) ->
 
-##### PUBLIC DOMAIN LICENSE ( IT'S IN THE PUBLIC DOMAIN )
 
 ### CHANGELOG
 
-##### 0.2.0
+##### 0.2.1
+- Fixed bug where knead:dragend would fire although a proper drag had not started.
 
+##### 0.2.0
 - Added ability to use .live to delegate knead events.
 - Added knead.initialize. This is needed to start things up to allow for delegation on a document-wide scale.
 
 ##### 0.1.x
-
 - Released before institution of changelog.
 
     

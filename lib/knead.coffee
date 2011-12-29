@@ -51,7 +51,7 @@ exports.monitor = (element, options={}) ->
       deltaY: (nowY - startY)
     
   $("html").mouseup (event) ->
-    return unless dragging
+    return unless dragging and started
     dragging = false
     started = false
 
