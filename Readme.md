@@ -49,6 +49,7 @@ Added ability to use .live to delegate knead events.
 Added knead.initialize. This is needed to start things up to allow for delegation on a document-wide scale.
 
 * 0.1.x
-0.1 series released Before Changelog instituted.
+
+0.1.x series released Before Changelog instituted.
 
     
