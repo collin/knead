@@ -6,6 +6,8 @@ calc_distance = (x1, y1, x2, y2) ->
   
   return Math.sqrt( (xs*xs) + (ys*ys) )
 
+uniq = -> (new Date).getTime().toString(23)
+
 exports.monitor = (element, options={}) ->
   dragging = false
   started = false
