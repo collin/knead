@@ -5,78 +5,74 @@ knead = require "../lib/knead"
 body = $("body")
   
 markup = """
-<div id="draggable" style="
-                            width: 100px; 
-                            height: 100px;
-                            position: relative;
-                            top: 100px;
-                            left: 100px;
-                          "></div>
+<section>
+  <div class="draggable">
+    <div class="child"></div>
+  </div>
+  <div class="draggable">
+    <div class="child"></div>
+  </div>
+  <div class="draggable">
+    <div class="child"></div>
+  </div>
+  <div class="draggable">
+    <div class="child"></div>
+  </div>
+  <div class="draggable">
+    <div class="child"></div>
+  </div>
+</section>
 """
   
 draggable = null
 
 # $.isWindow = (object) ->
 #   return object is $("html")[0]
-
-gen_event = (name, attrs={}) ->
-  _.extend $.Event(name), attrs
+trigger = (target, event, attrs={}) ->
+  attrs.target = target
+  target.trigger $.Event(event, attrs)
 
 tests = exports
 tests.setUp = (callback) ->
-  body.width(1000)
-  body.height(1000)
   body.append(markup)
-  draggable = $("#draggable")
+  draggable = $(".draggable:first")
   callback()
 
 tests.tearDown = (callback) ->
   body.empty()
   callback()
   
-tests.testDocument = (test) ->
-  test.ok $("body").length is 1, "We can get items into and out of the dom :D"
-  test.done()
-
-tests.testElement = (test) ->
-  test.ok draggable.width() is 100
-  test.ok draggable.height() is 100
-  test.done()
-
-tests.testClick = (test) ->
-  draggable.click (event) -> test.ok(true); test.done()
-  draggable.click()
-
 tests.testDragStart = (test) ->
   knead.monitor(draggable)
   draggable.bind "knead:dragstart", (event) ->
     test.done()
-  draggable.mousedown()
-  $("html").mousemove()
+  
+  draggable.find(".child").trigger "mousedown"
+  body.trigger "mousemove"
 
 tests.testDragEnd = (test) ->
   knead.monitor(draggable)
   draggable.bind "knead:dragend", (event) ->
     test.done()
-  draggable.mousedown()
-  $("html").mousemove()
-  $("html").mouseup()
+  
+  for event in ["mousedown", "mousemove", "mouseup"]
+    trigger draggable, event
 
 tests.testDrag = (test) ->
   knead.monitor(draggable)
   draggable.bind "knead:drag", (event) ->
     test.done()
-  draggable.mousedown()
-  $("html").mousemove()
+  draggable.trigger "mousedown"
+  body.mousemove()
 
 tests.testDragStartDistanceTooShort = (test) ->
   knead.monitor(draggable, distance: 50)
   check = false
   draggable.bind "knead:dragstart", -> check = true
   
-  draggable.trigger gen_event "mousedown", clientX: 0, clientY: 0
-  draggable.trigger gen_event "mousemove", clientX: 0, clientY: 0
-  draggable.trigger gen_event "mouseup"
+  trigger draggable, "mousedown", clientX: 0, clientY: 0
+  trigger draggable, "mousemove", clientX: 0, clientY: 0
+  trigger draggable, "mouseup"
   
   test.ok check is false
   test.done()
@@ -85,8 +81,8 @@ tests.testDragStartDistanceLongEnough = (test) ->
   knead.monitor(draggable, distance: 50)
   draggable.bind "knead:dragstart", -> test.done()
   
-  draggable.trigger gen_event("mousedown", clientX: 0, clientY: 0)
-  draggable.trigger gen_event("mousemove", clientX: 50, clientY: 50)
+  trigger draggable, "mousedown", clientX: 0, clientY: 0
+  trigger draggable, "mousemove", clientX: 50, clientY: 50
   
 tests.testDelta = (test) ->
   knead.monitor(draggable)
@@ -96,8 +92,8 @@ tests.testDelta = (test) ->
     test.ok event.deltaY is 100
     test.done()
     
-  draggable.trigger "mousedown"
-  draggable.trigger gen_event "mousemove", clientX: 50, clientY: 100
+  trigger draggable, "mousedown"
+  trigger draggable, "mousemove", clientX: 50, clientY: 100
 
 tests.testStartDelta = (test) ->
   knead.monitor(draggable)
@@ -106,8 +102,8 @@ tests.testStartDelta = (test) ->
     test.ok event.deltaY is 100
     test.done()
     
-  draggable.trigger "mousedown"
-  draggable.trigger gen_event "mousemove", clientX: 50, clientY: 100
+  trigger draggable, "mousedown"
+  trigger draggable, "mousemove", clientX: 50, clientY: 100
 
 tests.testEndDelta = (test) ->
   knead.monitor(draggable)
@@ -117,9 +113,8 @@ tests.testEndDelta = (test) ->
     test.ok event.deltaY is 100
     test.done()
     
-  draggable.trigger "mousedown"
-  draggable.trigger gen_event "mouseup", clientX: 50, clientY: 100
-
+  trigger draggable ,"mousedown"
+  trigger draggable , "mouseup", clientX: 50, clientY: 100
 
 tests.testNegativeDelta = (test) ->
   knead.monitor(draggable)
@@ -128,8 +123,8 @@ tests.testNegativeDelta = (test) ->
     test.equal -100, event.deltaY
     test.done()
     
-  draggable.trigger gen_event "mousedown", clientX: 50, clientY: 100
-  draggable.trigger gen_event "mousemove", clientX: 0, clientY: 0
+  trigger draggable, "mousedown", clientX: 50, clientY: 100
+  trigger draggable, "mousemove", clientX: 0, clientY: 0
   
 
 tests.testStartXY = (test) ->
@@ -146,12 +141,24 @@ tests.testStartXY = (test) ->
     test.equal event.startX, 100
     test.equal event.startY, 300
 
-  draggable.trigger gen_event "mousedown", clientX: 100, clientY: 300
-  draggable.trigger "mousemove"
-  draggable.trigger "mouseup"
+  trigger draggable, "mousedown", clientX: 100, clientY: 300
+  trigger draggable, "mousemove"
+  trigger draggable, "mouseup"
   
   test.done()
 
+tests.testDelegate = (test) ->
+  knead.initialize()
+  draggable = $ ".draggable:last"
   
-# tests.testDragStartEvent = (test) ->
+  draggable.addClass "last"
+
+  $("section .draggable.last").live "knead:drag", (event) ->
+    test.done()
   
+  trigger draggable.find(".child"), "mousedown"
+  trigger draggable, "mousemove"
+#   
+#   
+# # tests.testDragStartEvent = (test) ->
+#   

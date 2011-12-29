@@ -4,6 +4,9 @@ It doesn't do a lot.
 
 You have to be able to require("jquery") to use knead. If you can't, I'm sorry.
 
+
+#### Standard Use
+
     knead = require("knead")
     $ = require("jquery")
     draggable = $("#draggable")
@@ -27,5 +30,25 @@ You have to be able to require("jquery") to use knead. If you can't, I'm sorry.
       # Teardown
 
 
+#### .live (Event Delegation) use
+
+    knead = require("knead")
+    $ = require("jquery")
+    
+    knead.monitor("html", distance: 50)
+    
+    $("#container .draggable").live "knead:dragstart", (event) ->
+
 ##### PUBLIC DOMAIN LICENSE ( IT'S IN THE PUBLIC DOMAIN )
+
+### CHANGELOG
+
+* 0.2.0
+
+Added ability to use .live to delegate knead events.
+Added knead.initialize. This is needed to start things up to allow for delegation on a document-wide scale.
+
+* 0.1.x
+0.1 series released Before Changelog instituted.
+
     
