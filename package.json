@@ -2,14 +2,14 @@
   "author": "Collin Miller <collintmiller@gmail.com>",
   "name": "knead",
   "description": "A drag and drop library.",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "repository": {
     "type": "git",
     "url": "git://github.com/collin/knead.git"
   },
   "main": "lib/knead.coffee",
   "scripts": {
-    "test": "nodeunit test/"
+    "test": "watchr autotest.watchr"
   },
   "engines": {
     "node": ">= 0.6"

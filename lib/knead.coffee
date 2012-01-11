@@ -64,5 +64,5 @@ exports.monitor = (element, options={}) ->
 
     dragging = false
     started = false
-    
+    return true 
   
