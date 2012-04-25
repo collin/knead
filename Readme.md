@@ -4,15 +4,10 @@
 
 It doesn't do a lot.
 
-You have to be able to require("jquery") to use knead. If you can't, I'm sorry.
-
-
 #### Standard Use
-
-    knead = require("knead")
-    $ = require("jquery")
-    draggable = $("#draggable")
     
+    require "knead"
+        
     knead.monitor(draggable, distance: 50) 
     # distance: default 0
     #   Minimum distance required to consider a drag has happened. 
@@ -43,11 +38,36 @@ You have to be able to require("jquery") to use knead. If you can't, I'm sorry.
     $("#container .draggable").live "knead:dragstart", (event) ->
 
 
+#### Build
+
+    rake dist
+
+You'll find three distributions in dist/
+
+* knead.js - Full development build
+* knead-spade.js - Build registered for minispade
+* knead-min.js - uglified build
+
+#### Test
+
+    rake test
+
+You'll need to have phantomjs installed. This has been known to do the trick:
+
+    brew install phantomjs
+
+
 ### CHANGELOG
+
+##### 0.3.0
+- switched to qunit/phantomjs
+- using rake-pipeline and building minispade distribution
+- no longer an npm package
 
 ##### 0.2.3
 - have mouseup listener return true as to not interfere with outher
   libraries listening to the events
+
 ##### 0.2.2
 - Fixed bug where knead:dragstart would fire although the drag should have been canceled altogether.
 

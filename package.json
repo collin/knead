@@ -2,7 +2,7 @@
   "author": "Collin Miller <collintmiller@gmail.com>",
   "name": "knead",
   "description": "A drag and drop library.",
-  "version": "0.2.3",
+  "version": "0.3.0",
   "repository": {
     "type": "git",
     "url": "git://github.com/collin/knead.git"

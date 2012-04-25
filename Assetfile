@@ -1,10 +1,10 @@
 require "rake-pipeline-web-filters"
 require "json"
-# require "uglifier"
+require "uglifier"
 
 output "dist"
 input "lib" do
-  match "**/*.js" do
+  match "knead.js" do    
     minispade rewrite_requires: true, string: true, module_id_generator: proc { |input|
      id = input.path.dup
       id.sub!('/lib/', '/')
@@ -14,6 +14,18 @@ input "lib" do
 
     concat "knead-spade.js"
   end
+
+
+end
+
+output "dist"
+input "lib", "knead.js" do
+  neuter "knead.js"
+end
+
+output "dist"
+input "lib", "knead.js" do
+  uglify { "knead.min.js" }
 end
 
 output "test"
