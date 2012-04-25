@@ -5,38 +5,37 @@
 It doesn't do a lot.
 
 #### Standard Use
-    
-    require "knead"
-        
-    knead.monitor(draggable, distance: 50) 
-    # distance: default 0
-    #   Minimum distance required to consider a drag has happened. 
-    
-    
-    # All the knead:* events have the following properties:
-    
-    # startX, startY, deltaX, deltaY
-    # They are in pixel values and are relative to the document 0,0 point.
-    
-    draggable.bind "knead:dragstart", (event) ->
-      # Setup
-    
-    dragstart.bind "knead:drag", (event) ->
-      # Dostuff
-      
-    dragstart.bind "knead:dragend" (event) ->
-      # Teardown
 
+```coffee
+require "knead" # only if using knead-spade.js
+    
+knead.monitor(draggable, distance: 50) 
+# distance: default 0
+#   Minimum distance required to consider a drag has happened. 
+
+
+# All the knead:* events have the following properties:
+
+# startX, startY, deltaX, deltaY
+# They are in pixel values and are relative to the document 0,0 point.
+
+draggable.bind "knead:dragstart", (event) ->
+  # Setup
+
+dragstart.bind "knead:drag", (event) ->
+  # Dostuff
+  
+dragstart.bind "knead:dragend" (event) ->
+  # Teardown
+```
 
 #### .live (Event Delegation) use
 
-    knead = require("knead")
-    $ = require("jquery")
-    
-    knead.monitor("html", distance: 50)
-    
-    $("#container .draggable").live "knead:dragstart", (event) ->
+```coffee
+knead.monitor("html", distance: 50)
 
+$("#container .draggable").live "knead:dragstart", (event) ->
+```
 
 #### Build
 
