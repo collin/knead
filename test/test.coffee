@@ -1,9 +1,7 @@
-$ = require "jquery"
-_ = require "underscore"
-knead = require "../lib/knead"
-  
+require "knead"
+
 body = $("body")
-  
+
 markup = """
 <section>
   <div class="draggable">
@@ -23,7 +21,7 @@ markup = """
   </div>
 </section>
 """
-  
+
 draggable = null
 
 # $.isWindow = (object) ->
@@ -32,163 +30,154 @@ trigger = (target, event, attrs={}) ->
   attrs.target = target
   target.trigger $.Event(event, attrs)
 
-module.exports =
-  setUp: (callback) ->
+module "knead"
+  setup: ->
     body.append(markup)
     draggable = $(".draggable:first")
-    callback()
 
-  tearDown: (callback) ->
+  teardown: ->
     body.empty()
-    callback()
-  
-  testDragStart: (test) ->
-    knead.monitor(draggable)
-    draggable.bind "knead:dragstart", (event) ->
-      test.done()
-  
-    draggable.find(".child").trigger "mousedown"
-    body.trigger "mousemove"
 
-  testDragEnd: (test) ->
-    knead.monitor(draggable)
-    draggable.bind "knead:dragend", (event) ->
-      test.done()
-  
-    for event in ["mousedown", "mousemove", "mouseup"]
-      trigger draggable, event
+asyncTest "triggers dragstart", 0, ->
+  knead.monitor(draggable)
+  draggable.bind "knead:dragstart", start
 
-  testDrag: (test) ->
-    knead.monitor(draggable)
-    draggable.bind "knead:drag", (event) ->
-      test.done()
-    draggable.trigger "mousedown"
-    body.mousemove()
+  draggable.find(".child").trigger "mousedown"
+  body.trigger "mousemove"
 
-  testDragStartDistanceTooShort: (test) ->
-    knead.monitor(draggable, distance: 50)
-    check = false
-    draggable.bind "knead:dragstart", -> check = true
-  
-    trigger draggable, "mousedown", clientX: 0, clientY: 0
-    trigger draggable, "mousemove", clientX: 0, clientY: 0
-    trigger draggable, "mouseup"
-  
-    test.ok check is false
-    test.done()
+asyncTest "triggers dragend", 0, ->
+  knead.monitor(draggable)
+  draggable.bind "knead:dragend", start
 
-  testDragStartDistanceLongEnough: (test) ->
-    knead.monitor(draggable, distance: 50)
-    draggable.bind "knead:dragstart", -> test.done()
-  
-    trigger draggable, "mousedown", clientX: 0, clientY: 0
-    trigger draggable, "mousemove", clientX: 50, clientY: 50
-  
-  testDelta: (test) ->
-    knead.monitor(draggable)
-    draggable.bind "knead:drag", (event) ->
-    
-      test.ok event.deltaX is 50
-      test.ok event.deltaY is 100
-      test.done()
-    
-    trigger draggable, "mousedown"
-    trigger draggable, "mousemove", clientX: 50, clientY: 100
+  for event in ["mousedown", "mousemove", "mouseup"]
+    trigger draggable, event
 
-  testStartDelta: (test) ->
-    knead.monitor(draggable)
-    draggable.bind "knead:dragstart", (event) ->
-      test.ok event.deltaX is 50
-      test.ok event.deltaY is 100
-      test.done()
-    
-    trigger draggable, "mousedown"
-    trigger draggable, "mousemove", clientX: 50, clientY: 100
+asyncTest "triggers drag", 0, ->
+  knead.monitor(draggable)
+  draggable.bind "knead:drag", start
+  draggable.trigger "mousedown"
+  body.mousemove()
 
-  testEndDelta: (test) ->
-    knead.monitor(draggable)
-    draggable.bind "knead:dragend", (event) ->
-    
-      test.ok event.deltaX is 50
-      test.ok event.deltaY is 100
-      test.done()
-    
-    trigger draggable ,"mousedown"
-    trigger draggable ,"mousemove"
-    trigger draggable , "mouseup", clientX: 50, clientY: 100
+test "doesn't trigger drag when distance is to short", ->
+  knead.monitor(draggable, distance: 50)
+  check = false
+  draggable.bind "knead:dragstart", -> check = true
 
-  testNegativeDelta: (test) ->
-    knead.monitor(draggable)
-    draggable.bind "knead:drag", (event) ->
-      test.equal -50, event.deltaX
-      test.equal -100, event.deltaY
-      test.done()
-    
-    trigger draggable, "mousedown", clientX: 50, clientY: 100
-    trigger draggable, "mousemove", clientX: 0, clientY: 0
-  
+  trigger draggable, "mousedown", clientX: 0, clientY: 0
+  trigger draggable, "mousemove", clientX: 0, clientY: 0
+  trigger draggable, "mouseup"
 
-  testStartXY: (test) ->
-    knead.monitor(draggable)
-    draggable.bind "knead:dragstart", (event) ->
-      test.equal event.startX, 100
-      test.equal event.startY, 300
-    
-    draggable.bind "knead:drag", (event) ->
-      test.equal event.startX, 100
-      test.equal event.startY, 300
-    
-    draggable.bind "knead:dragend", (event) ->
-      test.equal event.startX, 100
-      test.equal event.startY, 300
+  ok check is false
 
-    trigger draggable, "mousedown", clientX: 100, clientY: 300
-    trigger draggable, "mousemove"
-    trigger draggable, "mouseup"
-  
-    test.done()
+asyncTest "trigers drag start when distince is long enough", 0, ->
+  knead.monitor(draggable, distance: 50)
+  draggable.bind "knead:dragstart", start
 
-  testEndCleanup: (test) ->
-    knead.monitor(draggable)
-    dragends = 0
-    draggable.bind "knead:dragend", -> dragends += 1
-    trigger draggable, "mousedown"
-    trigger draggable, "mousemove"
-    trigger draggable, "mouseup"
-    trigger draggable, "mouseup"
-  
-    test.equal 1, dragends
-    test.done()
+  trigger draggable, "mousedown", clientX: 0, clientY: 0
+  trigger draggable, "mousemove", clientX: 50, clientY: 50
 
-  testDoesntEndUnlessStarted: (test) ->
-    knead.monitor(draggable)
-    dragends = 0
-    draggable.bind "knead:dragend", -> dragends += 1
-    trigger draggable, "mousedown"
-    trigger draggable, "mouseup"
-  
-    test.equal 0, dragends
-    test.done()  
+asyncTest "measuters delta on drag", ->
+  knead.monitor(draggable)
+  draggable.bind "knead:drag", (event) ->
 
-  testCleansUpEvenIfDragDidNotStart: (test) ->
-    knead.monitor(draggable)
-    dragstarts = 0
-    draggable.bind "knead:dragstart", -> dragstarts += 1
-    trigger draggable, "mousedown"
-    trigger draggable, "mouseup"
-    trigger draggable, "mousemove"
-  
-    test.equal 0, dragstarts
-    test.done()  
-    
-  testDelegate: (test) ->
-    knead.initialize()
-    draggable = $ ".draggable:last"
-  
-    draggable.addClass "last"
+    ok event.deltaX is 50
+    ok event.deltaY is 100
+    start()
 
-    $("section .draggable.last").live "knead:drag", (event) ->
-      test.done()
-  
-    trigger draggable.find(".child"), "mousedown"
-    trigger draggable, "mousemove"
+  trigger draggable, "mousedown"
+  trigger draggable, "mousemove", clientX: 50, clientY: 100
+
+asyncTest "measures delta on dragstart", ->
+  knead.monitor(draggable)
+  draggable.bind "knead:dragstart", (event) ->
+    ok event.deltaX is 50
+    ok event.deltaY is 100
+    start()
+
+  trigger draggable, "mousedown"
+  trigger draggable, "mousemove", clientX: 50, clientY: 100
+
+asyncTest "measures delta on dragend", ->
+  knead.monitor(draggable)
+  draggable.bind "knead:dragend", (event) ->
+
+    ok event.deltaX is 50
+    ok event.deltaY is 100
+    start()
+
+  trigger draggable ,"mousedown"
+  trigger draggable ,"mousemove"
+  trigger draggable , "mouseup", clientX: 50, clientY: 100
+
+asyncTest "mesaures negative delta", ->
+  knead.monitor(draggable)
+  draggable.bind "knead:drag", (event) ->
+    equal -50, event.deltaX
+    equal -100, event.deltaY
+    start()
+
+  trigger draggable, "mousedown", clientX: 50, clientY: 100
+  trigger draggable, "mousemove", clientX: 0, clientY: 0
+
+
+test "measures startX and startY", ->
+  expect 6
+
+  knead.monitor(draggable)
+  draggable.bind "knead:dragstart", (event) ->
+    equal event.startX, 100
+    equal event.startY, 300
+
+  draggable.bind "knead:drag", (event) ->
+    equal event.startX, 100
+    equal event.startY, 300
+
+  draggable.bind "knead:dragend", (event) ->
+    equal event.startX, 100
+    equal event.startY, 300
+
+  trigger draggable, "mousedown", clientX: 100, clientY: 300
+  trigger draggable, "mousemove"
+  trigger draggable, "mouseup"
+
+test "cleans up events on dragend", ->
+  knead.monitor(draggable)
+  dragends = 0
+  draggable.bind "knead:dragend", -> dragends += 1
+  trigger draggable, "mousedown"
+  trigger draggable, "mousemove"
+  trigger draggable, "mouseup"
+  trigger draggable, "mouseup"
+
+  equal 1, dragends
+
+test "doesn't trigger dragend unless drag actually started", ->
+  knead.monitor(draggable)
+  dragends = 0
+  draggable.bind "knead:dragend", -> dragends += 1
+  trigger draggable, "mousedown"
+  trigger draggable, "mouseup"
+
+  equal 0, dragends
+
+test "cleans up events even if drag did not start", ->
+  knead.monitor(draggable)
+  dragstarts = 0
+  draggable.bind "knead:dragstart", -> dragstarts += 1
+  trigger draggable, "mousedown"
+  trigger draggable, "mouseup"
+  trigger draggable, "mousemove"
+
+  equal 0, dragstarts
+
+test "can be monitered through event delegation", 0, ->
+  knead.initialize()
+  draggable = $ ".draggable:last"
+
+  draggable.addClass "last"
+
+  $("section .draggable.last").live "knead:drag", (event) ->
+    start()
+
+  trigger draggable.find(".child"), "mousedown"
+  trigger draggable, "mousemove"

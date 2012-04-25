@@ -1,0 +1,34 @@
+require "rake-pipeline-web-filters"
+require "json"
+# require "uglifier"
+
+output "dist"
+input "lib" do
+  match "**/*.js" do
+    minispade rewrite_requires: true, string: true, module_id_generator: proc { |input|
+     id = input.path.dup
+      id.sub!('/lib/', '/')
+      id.sub!(/\.js$/, '')
+      id
+    }
+
+    concat "knead-spade.js"
+  end
+end
+
+output "test"
+input "./test" do
+  match "**/*.coffee" do
+    filter Rake::Pipeline::Web::Filters::CoffeeScriptFilter
+
+    minispade rewrite_requires: true, string: true, module_id_generator: proc { |input|
+     id = input.path.dup
+      id.sub!('/lib/', '/')
+      id.sub!(/\.js$/, '')
+      id.sub!(/\/main$/, '')
+      id
+    }
+
+    concat "test-spade.js"
+  end
+end
