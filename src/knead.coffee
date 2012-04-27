@@ -6,8 +6,6 @@ calc_distance = (x1, y1, x2, y2) ->
 
   return Math.sqrt( (xs*xs) + (ys*ys) )
 
-uniq = -> (new Date).getTime().toString(23)
-
 knead.initialize = (options) ->
   jQuery -> knead.monitor jQuery("html"), options
 
