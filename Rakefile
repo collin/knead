@@ -2,6 +2,7 @@ abort "Use Ruby 1.9 to build knead" unless RUBY_VERSION["1.9"]
 
 require 'rake-pipeline'
 require 'colored'
+require 'github_uploader'
 
 def build
   Rake::Pipeline::Project.new("Assetfile")
