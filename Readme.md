@@ -1,8 +1,6 @@
+[![Build Status](https://secure.travis-ci.org/collin/knead.png)](http://travis-ci.org/collin/knead)
 # YOW, its Knead. A Drag and Drop library.
 ##### PUBLIC DOMAIN LICENSE ( IT'S IN THE PUBLIC DOMAIN )
-
-[![Build Status](https://secure.travis-ci.org/collin/knead.png)](http://travis-ci.org/collin/knead)
-
 
 It doesn't do a lot.
 

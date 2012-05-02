@@ -44,3 +44,11 @@ input "./test" do
     concat "test-spade.js"
   end
 end
+
+output "dist"
+input "./", "knead.erb" do
+  require "./version"
+  filter(Rake::Pipeline::Web::Filters::TiltFilter) do |input|
+    "knead.html"
+  end
+end

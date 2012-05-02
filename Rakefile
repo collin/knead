@@ -59,3 +59,32 @@ task :test => :dist do |t, args|
     exit(1)
   end
 end
+
+desc "upload versions"
+task :upload => :test do
+  load "./version.rb"
+  uploader = GithubUploader.setup_uploader
+  GithubUploader.upload_file uploader, "knead-#{KNEAD_VERSION}.js", "knead #{KNEAD_VERSION}", "dist/knead.js"
+  GithubUploader.upload_file uploader, "knead-#{KNEAD_VERSION}-spade.js", "knead #{KNEAD_VERSION} (minispade)", "dist/knead-spade.js"
+  GithubUploader.upload_file uploader, "knead-#{KNEAD_VERSION}.html", "knead #{KNEAD_VERSION} (html_package)", "dist/knead.html"
+
+  GithubUploader.upload_file uploader, 'knead-latest.js', "Current knead", "dist/knead.js"
+  GithubUploader.upload_file uploader, 'knead-latest-spade.js', "Current knead (minispade)", "dist/knead-spade.js"
+end
+
+desc "tag/upload release"
+task :release, [:version] => :test do |t, args|
+  unless args[:version] and args[:version].match(/^[\d]+\.[\d]+\.[\d].*$/)
+    raise "SPECIFY A VERSION curent version: #{KNEAD_VERSION}"
+  end
+  File.open("./version.rb", "w") do |f| 
+    f.write %|KNEAD_VERSION = "#{args[:version]}"|
+  end
+
+  system "git add version.rb"
+  system "git commit -m 'bumped version to #{args[:version]}'"
+  system "git tag #{args[:version]}"
+  system "git push origin master"
+  system "git push origin #{args[:version]}"
+  Rake::Task[:upload].invoke
+end
