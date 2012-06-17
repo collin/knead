@@ -58,6 +58,9 @@ You'll need to have phantomjs installed. This has been known to do the trick:
 
 ### CHANGELOG
 
+##### 0.3.3
+- fixed bug when monitoring non-existant elements
+
 ##### 0.3.2
 - fixed bug when script is monitoring drag across documents
 
