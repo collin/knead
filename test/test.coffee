@@ -36,7 +36,7 @@ module "knead"
     draggable = $(".draggable:first")
 
   teardown: ->
-    body.empty()
+    body.find("section").remove()
 
 asyncTest "triggers dragstart", 0, ->
   knead.monitor(draggable)
@@ -181,3 +181,20 @@ test "can be monitered through event delegation", 0, ->
 
   trigger draggable.find(".child"), "mousedown"
   trigger draggable, "mousemove"
+
+test "can be monitored across an iframe", ->
+  # body.find("section").remove()
+  frame = document.createElement("iframe")
+  body.append(frame)
+  _body = frame.contentWindow.document.body
+  _body.innerHTML = markup
+  knead.monitor $(".draggable:first", _body)
+  draggable = $(".draggable:first", _body)
+
+  dragstart = false
+  draggable.bind "knead:dragstart", -> dragstart = true
+  trigger draggable, "mousedown"
+  trigger draggable, "mousemove"
+  trigger draggable, "mouseup"
+
+  ok dragstart

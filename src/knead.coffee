@@ -25,7 +25,9 @@ knead.monitor = (element, options={}) ->
     startX = event.clientX ? 0
     startY = event.clientY ? 0
 
-  $("html").mousemove (event) ->
+  html = $(element[0].ownerDocument.body).parent()
+
+  html.mousemove (event) ->
     return unless dragging
 
     [nowX, nowY] = [event.clientX or 0, event.clientY or 0]
@@ -48,7 +50,7 @@ knead.monitor = (element, options={}) ->
       deltaX: (nowX - startX)
       deltaY: (nowY - startY)
 
-  $("html").mouseup (event) ->
+  html.mouseup (event) ->
     if dragging and started
       [nowX, nowY] = [event.clientX or 0, event.clientY or 0]
       distance = calc_distance(startX, startY, nowX, nowY)
