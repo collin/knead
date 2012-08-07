@@ -58,6 +58,10 @@ You'll need to have phantomjs installed. This has been known to do the trick:
 
 ### CHANGELOG
 
+##### 0.3.4
+- changed event listener code to work when called across iframe
+  boundary
+
 ##### 0.3.3
 - fixed bug when monitoring non-existant elements
 
