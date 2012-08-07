@@ -188,8 +188,8 @@ test "can be monitored across an iframe", ->
   body.append(frame)
   _body = frame.contentWindow.document.body
   _body.innerHTML = markup
-  knead.monitor $(".draggable:first", _body)
-  draggable = $(".draggable:first", _body)
+  knead.monitor $($(".draggable:first", _body)[0])
+  draggable = $($(".draggable:first", _body)[0])
 
   dragstart = false
   draggable.bind "knead:dragstart", -> dragstart = true

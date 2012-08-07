@@ -25,7 +25,11 @@ knead.monitor = (element, options={}) ->
     startX = event.clientX ? 0
     startY = event.clientY ? 0
 
-  html = $(element.context)
+  _document = element.context
+  unless _document instanceof HTMLDocument
+    _document = _document.ownerDocument || document
+
+  html = $(_document.body).parent()
 
   html.mousemove (event) ->
     return unless dragging
