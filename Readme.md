@@ -58,6 +58,10 @@ You'll need to have phantomjs installed. This has been known to do the trick:
 
 ### CHANGELOG
 
+##### 0.4.0
+- added touch event handlers for touchstart, touchmove and touchend
+- updated event handers to track indivdual touches simultaneously
+
 ##### 0.3.4
 - changed event listener code to work when called across iframe
   boundary

@@ -9,21 +9,35 @@ calc_distance = (x1, y1, x2, y2) ->
 knead.initialize = (options) ->
   jQuery -> knead.monitor jQuery("html"), options
 
-knead.monitor = (element, options={}) ->
-  dragging = false
-  started = false
-  target = element
+statebox = {}
 
+statebox.get = (event) ->
+  statebox[event.identifier || 'cursor'] ||= {}
+
+statebox.purge = (event) ->
+  statebox[event.identifier || 'cursor'] = undefined
+
+start = (event) ->
+  state = statebox.get(event)
+
+  state.distance = 0
+  state.dragging = true
+  state.started = false
+  state.target = $(event.target)
+  state.startX = event.clientX ? 0
+  state.startY = event.clientY ? 0
+
+knead.monitor = (element, options={}) ->
   options.distance ?= 0
 
-  [startX, startY] = [0, 0]
-
   element.mousedown (event) ->
-    dragging = true
-    target = $(event.target)
+    start(event)
 
-    startX = event.clientX ? 0
-    startY = event.clientY ? 0
+  element.on 'touchstart', (event) ->
+    start(touch) for touch in event.originalEvent.changedTouches
+    return
+
+  # element.on 'gesturestart'
 
   _document = element.context
   unless _document instanceof HTMLDocument
@@ -31,42 +45,70 @@ knead.monitor = (element, options={}) ->
 
   html = $(_document.body).parent()
 
-  html.mousemove (event) ->
-    return unless dragging
+  doDrag = (position, event) ->
+    state = statebox.get(position)
 
-    [nowX, nowY] = [event.clientX or 0, event.clientY or 0]
-    distance = calc_distance(startX, startY, nowX, nowY)
 
-    if started is false and distance >= options.distance
-      target.trigger $.Event event,
+    [nowX, nowY] = [position.clientX or 0, position.clientY or 0]
+    state.distance = calc_distance(state.startX, state.startY, nowX, nowY)
+
+    if state.started is false and state.distance >= options.distance
+      state.target.trigger $.Event event,
         type:"knead:dragstart"
-        startX: startX
-        startY: startY
-        deltaX: (nowX - startX)
-        deltaY: (nowY - startY)
+        startX: state.startX
+        startY: state.startY
+        deltaX: (nowX - state.startX)
+        deltaY: (nowY - state.startY)
 
-      started = true
+      state.started = true
 
-    target.trigger $.Event event,
+    state.target.trigger $.Event event,
       type: "knead:drag"
-      startX: startX
-      startY: startY
-      deltaX: (nowX - startX)
-      deltaY: (nowY - startY)
+      startX: state.startX
+      startY: state.startY
+      deltaX: (nowX - state.startX)
+      deltaY: (nowY - state.startY)
 
-  html.mouseup (event) ->
-    if dragging and started
-      [nowX, nowY] = [event.clientX or 0, event.clientY or 0]
-      distance = calc_distance(startX, startY, nowX, nowY)
+  doEnd = (position, event) ->
+    state = statebox.get(position)
+    if state.dragging and state.started
+      [nowX, nowY] = [position.clientX or 0, position.clientY or 0]
+      state.distance = calc_distance(state.startX, state.startY, nowX, nowY)
 
-      target.trigger $.Event event,
+      state.target.trigger $.Event event,
         type: "knead:dragend"
-        startX: startX
-        startY: startY
-        deltaX: (nowX - startX)
-        deltaY: (nowY - startY)
+        startX: state.startX
+        startY: state.startY
+        deltaX: (nowX - state.startX)
+        deltaY: (nowY - state.startY)
 
-    dragging = false
-    started = false
+    statebox.purge(event)
     return true
+
+
+  html.on 'gesturechange', (event) ->
+
+  html.on 'gestureend', (event) ->
+
+  html.on 'touchmove', (event) ->
+    for touch in event.originalEvent.changedTouches
+      state = statebox.get(touch)
+      return unless state.dragging
+      doDrag(touch, event)
+
+    event.preventDefault()
+    return
+
+  html.mousemove (event) ->
+    state = statebox.get(event)
+    return unless state.dragging
+    doDrag(event, event)
+
+  html.on 'touchend', (event) ->
+    for touch in event.originalEvent.changedTouches
+      state = statebox.get(touch)
+      doEnd(touch, event)
+    return
+
+  html.mouseup (event) -> doEnd(event, event)
 

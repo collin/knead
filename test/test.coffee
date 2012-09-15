@@ -24,41 +24,77 @@ markup = """
 
 draggable = null
 
-# $.isWindow = (object) ->
-#   return object is $("html")[0]
 trigger = (target, event, attrs={}) ->
   attrs.target = target
   target.trigger $.Event(event, attrs)
 
 module "knead"
   setup: ->
+    body.find("section").remove()
     body.append(markup)
     draggable = $(".draggable:first")
+    $("html").unbind()
 
-  teardown: ->
-    body.find("section").remove()
-
-asyncTest "triggers dragstart", 0, ->
+test "triggers dragstart", ->
+  check = false
   knead.monitor(draggable)
-  draggable.bind "knead:dragstart", start
+  draggable.bind "knead:dragstart", -> check = true
 
-  draggable.find(".child").trigger "mousedown"
+  trigger draggable.find(".child"), "mousedown"
   body.trigger "mousemove"
 
-asyncTest "triggers dragend", 0, ->
+  ok check is true
+
+test "triggers dragstart on touchstart", ->
+  check = false
   knead.monitor(draggable)
-  draggable.bind "knead:dragend", start
+  draggable.bind "knead:dragstart", -> check = true
+
+  trigger draggable.find(".child"), "touchstart", originalEvent:
+    changedTouches: [{identifier: 'a', target: draggable.find(".child") }]
+
+  trigger body, "touchmove", originalEvent: changedTouches: [{identifier: 'a'}]
+
+  ok check is true
+
+test "triggers dragend", ->
+  check = false
+  knead.monitor(draggable)
+  draggable.bind "knead:dragend", -> check = true
 
   for event in ["mousedown", "mousemove", "mouseup"]
     trigger draggable, event
 
-asyncTest "triggers drag", 0, ->
+  ok check is true
+
+test "triggers dragend on touchend", ->
+  check = false
   knead.monitor(draggable)
-  draggable.bind "knead:drag", start
+  draggable.bind "knead:dragend", -> check = true
+
+  for event in ["touchstart", "touchmove", "touchend"]
+    trigger draggable, event, originalEvent: changedTouches: [{identifier: 'a', target: draggable}]
+
+  ok check is true
+
+test "triggers drag", ->
+  check = false
+  knead.monitor(draggable)
+  draggable.bind "knead:drag", -> check = true
   draggable.trigger "mousedown"
   body.mousemove()
 
-test "doesn't trigger drag when distance is to short", ->
+  ok check is true
+
+test "triggers drag on touchmove", ->
+  check = false
+  knead.monitor(draggable)
+  draggable.bind "knead:drag", -> check = true
+  trigger draggable, "mousedown", originalEvent: changedTouches: [{}]
+  trigger body, "mousemove", originalEvent: changedTouches: [{ }]
+  ok check is true
+
+test "doesn't trigger drag when distance is too short", ->
   knead.monitor(draggable, distance: 50)
   check = false
   draggable.bind "knead:dragstart", -> check = true
@@ -69,56 +105,90 @@ test "doesn't trigger drag when distance is to short", ->
 
   ok check is false
 
-asyncTest "trigers drag start when distince is long enough", 0, ->
+test "doesn't trigger drag when distance is too short with touches", ->
   knead.monitor(draggable, distance: 50)
-  draggable.bind "knead:dragstart", start
+  check = false
+  draggable.bind "knead:dragstart", -> check = true
+
+  trigger draggable, "touchstart", originalEvent: changedTouches: [identifier: 'a', clientX: 0, clientY: 0, target: draggable]
+  trigger draggable, "touchmove", originalEvent: changedTouches: [identifier: 'a', clientX: 0, clientY: 0]
+  trigger draggable, "touchend", originalEvent: changedTouches: [identifier: 'a']
+
+  ok check is false
+
+test "triggers drag start when distance is long enough with touches", ->
+  check = false
+  knead.monitor(draggable, distance: 50)
+  draggable.bind "knead:dragstart", -> check = true
+
+  trigger draggable, "touchstart", originalEvent: changedTouches: [identifier: 'a', clientX: 0, clientY: 0, target: draggable]
+  trigger draggable, "touchmove", originalEvent: changedTouches: [identifier: 'a', clientX: 50, clientY: 50]
+
+  ok check is true
+
+test "triggers drag start when distance is long enough", ->
+  check = false
+  knead.monitor(draggable, distance: 50)
+  draggable.bind "knead:dragstart", -> check = true
 
   trigger draggable, "mousedown", clientX: 0, clientY: 0
   trigger draggable, "mousemove", clientX: 50, clientY: 50
 
-asyncTest "measuters delta on drag", ->
+  ok check is true
+
+test "measures delta on drag", ->
+  check = false
   knead.monitor(draggable)
   draggable.bind "knead:drag", (event) ->
 
     ok event.deltaX is 50
     ok event.deltaY is 100
-    start()
+    check = true
 
   trigger draggable, "mousedown"
   trigger draggable, "mousemove", clientX: 50, clientY: 100
 
-asyncTest "measures delta on dragstart", ->
+  ok check is true
+
+test "measures delta on dragstart", ->
+  check = true
   knead.monitor(draggable)
   draggable.bind "knead:dragstart", (event) ->
     ok event.deltaX is 50
     ok event.deltaY is 100
-    start()
+    check = true
 
   trigger draggable, "mousedown"
   trigger draggable, "mousemove", clientX: 50, clientY: 100
+  ok check is true
 
-asyncTest "measures delta on dragend", ->
+test "measures delta on dragend", ->
+  check = false
   knead.monitor(draggable)
   draggable.bind "knead:dragend", (event) ->
 
     ok event.deltaX is 50
     ok event.deltaY is 100
-    start()
+    check = true
 
   trigger draggable ,"mousedown"
   trigger draggable ,"mousemove"
   trigger draggable , "mouseup", clientX: 50, clientY: 100
 
-asyncTest "mesaures negative delta", ->
+  ok check is true
+
+test "mesaures negative delta", ->
+  check = false
   knead.monitor(draggable)
   draggable.bind "knead:drag", (event) ->
     equal -50, event.deltaX
     equal -100, event.deltaY
-    start()
+    check = true
 
   trigger draggable, "mousedown", clientX: 50, clientY: 100
   trigger draggable, "mousemove", clientX: 0, clientY: 0
 
+  ok check is true
 
 test "measures startX and startY", ->
   expect 6
