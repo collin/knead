@@ -40,7 +40,11 @@ knead.monitor = (element, options={}) ->
   # element.on 'gesturestart'
 
   _document = element.context
-  unless _document instanceof HTMLDocument
+
+  # IE9 only understands Document
+  klass = if (typeof Document != 'undefined') then Document else HTMLDocument
+
+  unless _document instanceof klass 
     _document = _document.ownerDocument || document
 
   html = $(_document.body).parent()
